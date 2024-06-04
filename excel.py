@@ -1,5 +1,5 @@
 from openpyxl import load_workbook
-from simple_term_menu import TerminalMenu
+import dumb_menu
 from prompt_toolkit import prompt
 from openpyxl.styles import Font, Alignment
 from prompt_toolkit.completion import WordCompleter
@@ -35,8 +35,8 @@ def autocomplete_input(prompt_text, options):
         else:
             suggestions = [option for option in options if user_input.lower() in option.lower()]
             if suggestions:
-                terminal_menu = TerminalMenu(suggestions)
-                menu_entry_index = terminal_menu.show()
+                terminal_menu = dumb_menu.get_menu_choice(suggestions)
+                menu_entry_index = terminal_menu
                 selected_option = suggestions[menu_entry_index]
                 print('>',selected_option)
                 return selected_option
