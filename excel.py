@@ -1,23 +1,30 @@
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 import dumb_menu
 from prompt_toolkit import prompt
 from openpyxl.styles import Font, Alignment
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 import datetime
-
+import os.path
 print('Welcome to Python Automated Tool')
 
 # Function to get the worksheet and workbook from the user
 def Requirements():
-    Path = input(
-        '\nEnter the Location or PATH of the file (e.g: /home/carl/workloads.xlsx): ')
-    Choice_sheet = input(
-        '\nEnter the name of the sheet you want to access (e.g: sheet1): ')
-
-    wb = load_workbook(Path)
-    ws = wb[Choice_sheet]
-
+    while True:
+        Path = input(
+            '\nEnter the Location or PATH of the file (e.g: /home/carl/workloads.xlsx): ')
+        Choice_sheet = input(
+            '\nEnter the name of the sheet you want to access (e.g: sheet1): ')
+        if not os.path.isfile(Path):
+            print('\n\033[91mThe file is not found.\033[00m')
+        else:
+            wb = load_workbook(Path)
+            if Choice_sheet not in wb.sheetnames:
+                print('\n\033[91mThe specified sheet is not found in the workbook.\033[00m')
+                continue
+            else:
+                ws = wb[Choice_sheet]
+                break
     return ws, wb, Path
 
 # Function to provide autocompletion for user input
@@ -28,20 +35,19 @@ def autocomplete_input(prompt_text, options):
     print(f'\n{prompt_text}\n')
 
     while True:
-        user_input = prompt("Search anything (If cannot find what you searching for. You can you alternative way. Enter none, to put it by yourself and contact the Developer.): ", completer=completer, history=history)
+        user_input = prompt("Enter your search query or type 'none' to input manually and contact the Developer: ", completer=completer, history=history)
         if user_input.lower() == 'none':
             selected_option = input('Enter the text: ')
             return selected_option
         else:
             suggestions = [option for option in options if user_input.lower() in option.lower()]
             if suggestions:
-                terminal_menu = dumb_menu.get_menu_choice(suggestions)
-                menu_entry_index = terminal_menu
+                menu_entry_index = dumb_menu.get_menu_choice(suggestions)
                 selected_option = suggestions[menu_entry_index]
-                print('>',selected_option)
+                print('>', selected_option)
                 return selected_option
             else:
-                print(f"\033[91mInvalid input. Please try again.\033[00m")
+                print(f"\033[91mNot found. Re-check your input.\033[00m")
 
 # Function to get the company name with autocompletion
 def CompanyNameD():
