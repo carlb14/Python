@@ -87,20 +87,24 @@ def Description():
     return autocomplete_input("Description:", options)
 
 # Function to convert input date string to a formatted date string
-def DateTime(input_str):
+def DateTime(input_str: str) -> tuple:
+
+
     input_str = input_str.replace('.', '')
     month_number = int(input_str[:2])
     day = int(input_str[2:4])
     year = int(input_str[4:])
+    
     if year >= 0 and year <= 21:
         year += 2000
     else:
         year += 1900
+    
     year %= 100  # Get only the last two digits
-    month_full_name = datetime.date(year, month_number, day).strftime("%B")
     month_abbr = datetime.date(year, month_number, day).strftime("%b")
-
+    
     datetime_number = f"{day}-{month_abbr}-{year}"
+    
     return datetime_number, input_str, month_number
 
 def ChoiceSheet(month_number, wb):
@@ -136,14 +140,43 @@ def TIN_D():
             return TIN
 def Again():
     while True:   
-        results = input('\nDo you want to create more (y/n)? ')
+        results = input('Do you want to create more (y/n)? ')
         if results.lower() == 'y':
             Input_details(input("\nEnter the date (052424 = May,24,2024): "))
             break
         else:
-            print('\nGood Bye!')
+            print('\nGood Bye!\n')
             exit() 
             
+def Save(ws, Path, datetime_number, company_name, address_name, TIN, description_name, TotalAmountPaid, InputVat, CPS):
+    # Get the next available row
+    next_row = ws.max_row + 1
+
+    # Set values for the new row
+    font = Font(name="Arial", size=10)
+    alignment = Alignment(horizontal='center', vertical='center')
+
+    cells = [
+        (1, datetime_number),
+        (2, company_name),
+        (3, address_name),
+        (4, TIN),
+        (5, description_name),
+        (6, TotalAmountPaid),
+        (7, InputVat),
+        (8, CPS),
+    ]
+
+    for column, value in cells:
+        cell = ws.cell(row=next_row, column=column)
+        cell.value = value
+        cell.font = font
+        cell.alignment = alignment
+    # Save the workbook
+    wb.save(Path)
+    
+    print("\033[92mData has been successfully saved.\033[00m")
+      
 # Function to input details and calculate Cost of Products & Services
 def Input_details(input_str):
     datetime_number, input_str, month_number = DateTime(input_str)
@@ -172,33 +205,7 @@ def Input_details(input_str):
     while True:
         y_or_n = input('\nDoes the details are correct? Enter (y/n): ')
         if y_or_n.lower() == 'y':
-            # Get the next available row
-            next_row = ws.max_row + 1
-
-            # Set values for the new row
-            font = Font(name="Arial", size=10)
-            alignment = Alignment(horizontal='center', vertical='center')
-
-            cells = [
-                (1, datetime_number),
-                (2, company_name),
-                (3, address_name),
-                (4, TIN),
-                (5, description_name),
-                (6, TotalAmountPaid),
-                (7, InputVat),
-                (8, CPS),
-            ]
-
-            for column, value in cells:
-                cell = ws.cell(row=next_row, column=column)
-                cell.value = value
-                cell.font = font
-                cell.alignment = alignment
-            # Save the workbook
-            wb.save(Path)
-            
-            print("\n\033[92mData has been successfully saved.\033[00m")
+            Save(ws, Path, datetime_number, company_name, address_name, TIN, description_name, TotalAmountPaid, InputVat, CPS)
             break
         elif y_or_n.lower() == 'n':
             Input_details(input("Enter the date (052424 = May,24,2024): "))
